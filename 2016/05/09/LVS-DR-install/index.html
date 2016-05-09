@@ -1,0 +1,682 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="python," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="文章首发站点: OpensGalaxy.com一、介绍什么是LVS(Linux Virtual Server)？Linux虚拟服务器是一个高度可扩展的、高可用的服务器建立在真实服务器的集群和负载均衡，在Linux操作系统上运行。服务器集群体系结构对用户是完全透明的，使用户像访问一台服务器一样。
+LVS的应用Linux虚拟服务器作为一种先进的负载均衡解决方案可用于构建高度可扩展的、高可用的网络服务，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LVS-DR模式安装与配置">
+<meta property="og:url" content="http://sysbook.info/2016/05/09/LVS-DR-install/index.html">
+<meta property="og:site_name" content="Thinking">
+<meta property="og:description" content="文章首发站点: OpensGalaxy.com一、介绍什么是LVS(Linux Virtual Server)？Linux虚拟服务器是一个高度可扩展的、高可用的服务器建立在真实服务器的集群和负载均衡，在Linux操作系统上运行。服务器集群体系结构对用户是完全透明的，使用户像访问一台服务器一样。
+LVS的应用Linux虚拟服务器作为一种先进的负载均衡解决方案可用于构建高度可扩展的、高可用的网络服务，">
+<meta property="og:image" content="http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/01142525-56dfb6e2f4794ba78b075f527b835994.jpg">
+<meta property="og:image" content="http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/lvslan.png">
+<meta property="og:image" content="http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/rs1.tiff">
+<meta property="og:image" content="http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/rs2.tiff">
+<meta property="og:image" content="http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/ipvsadm.tiff">
+<meta property="og:updated_time" content="2016-05-09T07:45:28.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="LVS-DR模式安装与配置">
+<meta name="twitter:description" content="文章首发站点: OpensGalaxy.com一、介绍什么是LVS(Linux Virtual Server)？Linux虚拟服务器是一个高度可扩展的、高可用的服务器建立在真实服务器的集群和负载均衡，在Linux操作系统上运行。服务器集群体系结构对用户是完全透明的，使用户像访问一台服务器一样。
+LVS的应用Linux虚拟服务器作为一种先进的负载均衡解决方案可用于构建高度可扩展的、高可用的网络服务，">
+<meta name="twitter:image" content="http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/01142525-56dfb6e2f4794ba78b075f527b835994.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> LVS-DR模式安装与配置 | Thinking </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Thinking</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">True wealth is a way of thinking</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                LVS-DR模式安装与配置
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-05-09T15:40:00+08:00" content="2016-05-09">
+              2016-05-09
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="文章首发站点-OpensGalaxy-com"><a href="#文章首发站点-OpensGalaxy-com" class="headerlink" title="文章首发站点: OpensGalaxy.com"></a>文章首发站点: <a href="http://opensgalaxy.com" target="_blank" rel="external">OpensGalaxy.com</a></h3><h2 id="一、介绍"><a href="#一、介绍" class="headerlink" title="一、介绍"></a>一、介绍</h2><h2 id="什么是LVS-Linux-Virtual-Server-？"><a href="#什么是LVS-Linux-Virtual-Server-？" class="headerlink" title="什么是LVS(Linux Virtual Server)？"></a>什么是LVS(Linux Virtual Server)？</h2><p>Linux虚拟服务器是一个高度可扩展的、高可用的服务器建立在真实服务器的集群和负载均衡，在Linux操作系统上运行。服务器集群体系结构对用户是完全透明的，使用户像访问一台服务器一样。</p>
+<h2 id="LVS的应用"><a href="#LVS的应用" class="headerlink" title="LVS的应用"></a>LVS的应用</h2><p>Linux虚拟服务器作为一种先进的负载均衡解决方案可用于构建高度可扩展的、高可用的网络服务，如Web、FTP、邮件、缓存、媒体和VoIP服务。</p>
+<h2 id="LVS负载均衡模式"><a href="#LVS负载均衡模式" class="headerlink" title="LVS负载均衡模式"></a>LVS负载均衡模式</h2><p>VS/NAT、VS/TUN和VS/DR<br>本文将介绍LVS-DR（Direct Routing）模式的安装与配置，VS/DR模式的拓扑图:<br><img src="http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/01142525-56dfb6e2f4794ba78b075f527b835994.jpg" alt="image"></p>
+<p>该图是官方提供的VS/DR体系结构图，在VS/DR模式下，Load Balancer和所有的Real Server在物理上有一个网卡通过不分断的局域网相连，调度器和真实服务器必须绑定同一VIP，该VIP在调度器上对外可见，而真实服务器上只需将VIP配置在Non-ARP网络设备上，它对外不可见，只是用于欺骗真实服务器用于处理目标地址为VIP的网络请求。真实服务器将请求处理后，直接返回给用户，不需要在通过调度器返回，所以在VS/DR模式下，真实服务器的网关地址不需要指向调度器。</p>
+<h2 id="二、安装ipvs"><a href="#二、安装ipvs" class="headerlink" title="二、安装ipvs"></a>二、安装ipvs</h2><p>1、检查Load Balancer服务器是否已支持ipvs。</p>
+<figure class="highlight plain"><figcaption><span>~]# modprobe -l |grep ipvs```</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">若有类似以下输出，则表示服务器已支持ipvs: </span><br><span class="line"></span><br><span class="line">2、检查是否有必须的依赖包：Kernel-devel、gcc、openssl、openssl-devel、popt </span><br><span class="line"></span><br><span class="line">![image](http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/modprobe.tiff)</span><br><span class="line"></span><br><span class="line">如果没有包，可以使用yum install 安装。</span><br><span class="line"></span><br><span class="line">![image](http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/rpm.tiff)</span><br><span class="line"></span><br><span class="line">3、在Load Balancer服务器上安装ipvsadm</span><br><span class="line">直接使用YUM源安装</span><br><span class="line"></span><br><span class="line">```[root@YumServer ~]# yum install ipvsadm</span><br></pre></td></tr></table></figure>
+<p>或是到官网下载:<a href="http://www.linuxvirtualserver.org" target="_blank" rel="external">http://www.linuxvirtualserver.org</a> 注意要根据自己的内核版本选择对应的ipvsadm版本。本文使用YUM安装。</p>
+<p>查看ipvsadm版本</p>
+<figure class="highlight plain"><figcaption><span>~]# ipvsadm -v</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ipvsadm v1.26 2008/5/15 (compiled with popt and IPVS v1.2.1)</span><br></pre></td></tr></table></figure>
+<h2 id="三、配置"><a href="#三、配置" class="headerlink" title="三、配置"></a>三、配置</h2><hr>
+<p>环境: </p>
+<ul>
+<li>Load Balancer(调度器)</li>
+</ul>
+<p>IP(eth0):  10.10.10.215/24</p>
+<p>VIP(eth0:0): 10.10.10.213/32</p>
+<p>GATEWAY: 10.10.10.254</p>
+<ul>
+<li>Real Server1</li>
+</ul>
+<p>IP(eth0): 10.10.10.216/24</p>
+<p>VIP(lo:0): 10.10.10.213/32</p>
+<ul>
+<li>Real Server2</li>
+</ul>
+<p>IP(eth0): 10.10.10.217/24</p>
+<p>VIP(lo:0):  10.10.10.213/32</p>
+<p>拓扑图如下: </p>
+<p><img src="http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/lvslan.png" alt="image"></p>
+<h3 id="一-Load-Balancer-调度器"><a href="#一-Load-Balancer-调度器" class="headerlink" title="(一) Load Balancer(调度器)"></a>(一) Load Balancer(调度器)</h3><p>1、eth0 本机ip</p>
+<p>10.10.10.215</p>
+<p>2、添加VIP 10.10.10.213</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">cp ifcfg-eth0 ifcfg-eth0:0</span><br><span class="line"></span><br><span class="line">#编辑结果如下: </span><br><span class="line"></span><br><span class="line">[root@YumServer network-scripts]# cat ifcfg-eth0:0</span><br><span class="line"></span><br><span class="line">DEVICE=&quot;eth0:0&quot;</span><br><span class="line"></span><br><span class="line">BOOTPROTO=&quot;static&quot;</span><br><span class="line"></span><br><span class="line">NM_CONTROLLED=&quot;yes&quot;</span><br><span class="line"></span><br><span class="line">ONBOOT=&quot;yes&quot;</span><br><span class="line"></span><br><span class="line">IPADDR=10.10.10.213</span><br><span class="line"></span><br><span class="line">NETMASK=255.255.255.255</span><br><span class="line"></span><br><span class="line">TYPE=&quot;Ethernet&quot;</span><br><span class="line"></span><br><span class="line">DNS1=10.10.10.20</span><br><span class="line"></span><br><span class="line">DNS2=10.10.10.21</span><br></pre></td></tr></table></figure>
+<p>3、编辑配置内核参数</p>
+<p>添加如下配置: </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 打开ip转发</span><br><span class="line">net.ipv4.ip_forward = 1</span><br><span class="line"># 关闭路由重定向功能</span><br><span class="line">net.ipv4.conf.all.send_redirects = 0  </span><br><span class="line">net.ipv4.conf.default.send_redirects = 0</span><br><span class="line">net.ipv4.conf.eth0.send_redirects = 0</span><br></pre></td></tr></table></figure>
+<p>配置生效</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sysctl -p</span><br></pre></td></tr></table></figure>
+<p>4、添加负载均衡配置(轮询算法，默认是权重相同)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ipvsadm -A -t 10.10.10.213:80 -s rr</span><br><span class="line">ipvsadm -a -t 10.10.10.213:80 -r 10.10.10.216:80 -g -w 1</span><br><span class="line">ipvsadm -a -t 10.10.10.213:80 -r 10.10.10.217:80 -g -w 1</span><br></pre></td></tr></table></figure>
+<p>5、保存配置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">[root@YumServer ~]# service ipvsadm save</span><br><span class="line"></span><br><span class="line">或者是直接编辑文件添加</span><br><span class="line">[root@YumServer ~]# cat /etc/sysconfig/ipvsadm</span><br><span class="line">-A -t 10.10.10.213:80 -s rr</span><br><span class="line">-a -t 10.10.10.213:80 -r 10.10.10.216:80 -g -w 1</span><br><span class="line">-a -t 10.10.10.213:80 -r 10.10.10.217:80 -g -w 1</span><br></pre></td></tr></table></figure>
+<p>###（二）RealServer配置</p>
+<p>1、eth0 本机ip</p>
+<p>10.10.10.216</p>
+<p>2、添加VIP 10.10.10.213</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">cp ifcfg-eth0 ifcfg-lo:0</span><br><span class="line"></span><br><span class="line">#编辑结果如下：</span><br><span class="line"></span><br><span class="line">[root@RealServer01 html]# cat /etc/sysconfig/network-scripts/ifcfg-lo:0</span><br><span class="line">DEVICE=lo:0</span><br><span class="line">IPADDR=10.10.10.213</span><br><span class="line">NETMASK=255.255.255.255</span><br><span class="line">ONBOOT=yes</span><br></pre></td></tr></table></figure>
+<p>3、编辑配置内核参数</p>
+<p>添加如下配置：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">net.ipv4.ip_forward = 1</span><br><span class="line">net.ipv4.conf.all.arp_ignore = 1</span><br><span class="line">net.ipv4.conf.all.arp_announce = 2</span><br><span class="line">net.ipv4.conf.lo.arp_ignore = 1</span><br><span class="line">net.ipv4.conf.lo.arp_announce = 2</span><br></pre></td></tr></table></figure>
+<hr>
+<blockquote>
+<h3 id="有关arp-ignore的相关介绍："><a href="#有关arp-ignore的相关介绍：" class="headerlink" title="有关arp_ignore的相关介绍："></a>有关arp_ignore的相关介绍：</h3><p>arp_ignore: 定义对目标地址为本地IP的ARP询问不同的应答模式0 </p>
+<p>0 - (默认值): 回应任何网络接口上对任何本地IP地址的arp查询请求 </p>
+<p>1 - 只回答目标IP地址是来访网络接口本地地址的ARP查询请求 </p>
+<p>2 -只回答目标IP地址是来访网络接口本地地址的ARP查询请求,且来访IP必须在该网络接口的子网段内 </p>
+<p>3 - 不回应该网络界面的arp请求，而只对设置的唯一和连接地址做出回应 </p>
+<p>4-7 - 保留未使用 </p>
+<p>8 -不回应所有（本地地址）的arp查询</p>
+<h3 id="有关arp-announce的相关介绍："><a href="#有关arp-announce的相关介绍：" class="headerlink" title="有关arp_announce的相关介绍："></a>有关arp_announce的相关介绍：</h3><p>arp_announce:对网络接口上，本地IP地址的发出的，ARP回应，作出相应级别的限制: 确定不同程度的限制,宣布对来自本地源IP地址发出Arp请求的接口 </p>
+<p>0 - (默认) 在任意网络接口（eth0,eth1，lo）上的任何本地地址 </p>
+<p>1 -尽量避免不在该网络接口子网段的本地地址做出arp回应. 当发起ARP请求的源IP地址是被设置应该经由路由达到此网络接口的时候很有用.此时会检查来访IP是否为所有接口上的子网段内ip之一.如果改来访IP不属于各个网络接口上的子网段内,那么将采用级别2的方式来进行处理. </p>
+<p>2 - 对查询目标使用最适当的本地地址.在此模式下将忽略这个IP数据包的源地址并尝试选择与能与该地址通信的本地地址.首要是选择所有的网络接口的子网中外出访问子网中包含该目标IP地址的本地地址. 如果没有合适的地址被发现,将选择当前的发送网络接口或其他的有可能接受到该ARP回应的网络接口来进行发送.</p>
+</blockquote>
+<hr>
+<p>配置生效</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sysctl -p</span><br></pre></td></tr></table></figure>
+<p>4、添加路由</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">route add -host 10.10.10.213 dev lo:0</span><br></pre></td></tr></table></figure>
+<h3 id="RealServer01-配置完毕-RealServer02除本机ip不同外，其他配置一致。"><a href="#RealServer01-配置完毕-RealServer02除本机ip不同外，其他配置一致。" class="headerlink" title="RealServer01 配置完毕,RealServer02除本机ip不同外，其他配置一致。"></a>RealServer01 配置完毕,RealServer02除本机ip不同外，其他配置一致。</h3><p>##(三)验证</p>
+<ul>
+<li>两台RealServer服务器都安装http服务用于验证负载均衡设置是否生效（分别放置可以显示RealServer1和RealServer2的html页面，用于验证负载均衡效果）如下图: </li>
+</ul>
+<p><img src="http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/rs1.tiff" alt="image"></p>
+<p>刷新后出现: </p>
+<p><img src="http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/rs2.tiff" alt="image"></p>
+<p>查看请求分发情况</p>
+<p><img src="http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/ipvsadm.tiff" alt="image"></p>
+<h2 id="附录（关于出现SYN-RECV状态）"><a href="#附录（关于出现SYN-RECV状态）" class="headerlink" title="附录（关于出现SYN_RECV状态）"></a>附录（关于出现SYN_RECV状态）</h2><p>刚搭建完成lvs时，发现刷新好半天，只请求到了其中一台服务器，而我明明使用的是轮询，通过查看连接情况发现：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">[root@YumServer network-scripts]# ipvsadm -lnc </span><br><span class="line">IPVS connection entries</span><br><span class="line">pro expire state       source             virtual            destination</span><br><span class="line">TCP 01:48  FIN_WAIT    10.10.10.22:3065   10.10.10.213:80    10.10.10.217:80</span><br><span class="line">TCP 01:51  FIN_WAIT    10.10.10.22:3095   10.10.10.213:80    10.10.10.217:80</span><br><span class="line">TCP 01:50  FIN_WAIT    10.10.10.22:3082   10.10.10.213:80    10.10.10.217:80</span><br><span class="line">TCP 00:49  SYN_RECV    10.10.10.22:3068   10.10.10.213:80    10.10.10.216:80</span><br><span class="line">TCP 01:55  FIN_WAIT    10.10.10.22:3129   10.10.10.213:80    10.10.10.217:80</span><br><span class="line">TCP 01:56  FIN_WAIT    10.10.10.22:3149   10.10.10.213:80    10.10.10.217:80</span><br><span class="line">TCP 01:45  FIN_WAIT    10.10.10.22:3048   10.10.10.213:80    10.10.10.217:80</span><br><span class="line">TCP 00:58  SYN_RECV    10.10.10.22:3164   10.10.10.213:80    10.10.10.216:80</span><br><span class="line">TCP 01:47  FIN_WAIT    10.10.10.22:3057   10.10.10.213:80    10.10.10.217:80</span><br><span class="line">TCP 00:56  SYN_RECV    10.10.10.22:3137   10.10.10.213:80    10.10.10.216:80</span><br><span class="line">TCP 00:57  SYN_RECV    10.10.10.22:3152   10.10.10.213:80    10.10.10.216:80</span><br><span class="line">TCP 01:57  FIN_WAIT    10.10.10.22:3153   10.10.10.213:80    10.10.10.217:80</span><br><span class="line">TCP 00:53  SYN_RECV    10.10.10.22:3105   10.10.10.213:80    10.10.10.216:80</span><br><span class="line">TCP 01:54  FIN_WAIT    10.10.10.22:3114   10.10.10.213:80    10.10.10.217:80</span><br><span class="line">TCP 01:56  FIN_WAIT    10.10.10.22:3140   10.10.10.213:80    10.10.10.217:80</span><br><span class="line">TCP 00:51  SYN_RECV    10.10.10.22:3079   10.10.10.213:80    10.10.10.216:80</span><br><span class="line">TCP 01:55  FIN_WAIT    10.10.10.22:3127   10.10.10.213:80    10.10.10.217:80</span><br><span class="line">TCP 00:50  SYN_RECV    10.10.10.22:3074   10.10.10.213:80    10.10.10.216:80</span><br><span class="line">TCP 00:54  SYN_RECV    10.10.10.22:3120   10.10.10.213:80    10.10.10.216:80</span><br></pre></td></tr></table></figure>
+<p>会出现大量的SYN_RECV状态，SYN-RECV 代表LB已经发起SYN请求，realserver 无响应或有异常。<br>请求已经发出，但是realserver无响应？所以查看realserver的apache配置发现，我选择监听的是realserver的本机ip</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@RealServer01 conf]# cat httpd.conf  |grep Lis</span><br><span class="line">Listen 10.10.10.216:80</span><br></pre></td></tr></table></figure>
+<p>是这个配置导致了错误，更改成如下配置后，状态正常。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@RealServer01 conf]# cat httpd.conf  |grep Lis</span><br><span class="line">Listen 10.10.10.213:80</span><br></pre></td></tr></table></figure>
+<p>或者</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@RealServer01 conf]# cat httpd.conf  |grep Lis</span><br><span class="line">Listen 80</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/python/" rel="tag">#python</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/04/21/计算plank成绩/" rel="next" title="计算Plank分组成绩的python小程序">
+                <i class="fa fa-chevron-left"></i> 计算Plank分组成绩的python小程序
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.png"
+               alt="True wealth is a way of thinking." />
+          <p class="site-author-name" itemprop="name">True wealth is a way of thinking.</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">3</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        <div class="links-of-blogroll motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#文章首发站点-OpensGalaxy-com"><span class="nav-number">1.</span> <span class="nav-text">文章首发站点: OpensGalaxy.com</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一、介绍"><span class="nav-number"></span> <span class="nav-text">一、介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是LVS-Linux-Virtual-Server-？"><span class="nav-number"></span> <span class="nav-text">什么是LVS(Linux Virtual Server)？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LVS的应用"><span class="nav-number"></span> <span class="nav-text">LVS的应用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LVS负载均衡模式"><span class="nav-number"></span> <span class="nav-text">LVS负载均衡模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、安装ipvs"><span class="nav-number"></span> <span class="nav-text">二、安装ipvs</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、配置"><span class="nav-number"></span> <span class="nav-text">三、配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#一-Load-Balancer-调度器"><span class="nav-number">1.</span> <span class="nav-text">(一) Load Balancer(调度器)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#有关arp-ignore的相关介绍："><span class="nav-number">2.</span> <span class="nav-text">有关arp_ignore的相关介绍：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#有关arp-announce的相关介绍："><span class="nav-number">3.</span> <span class="nav-text">有关arp_announce的相关介绍：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RealServer01-配置完毕-RealServer02除本机ip不同外，其他配置一致。"><span class="nav-number">4.</span> <span class="nav-text">RealServer01 配置完毕,RealServer02除本机ip不同外，其他配置一致。</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#附录（关于出现SYN-RECV状态）"><span class="nav-number"></span> <span class="nav-text">附录（关于出现SYN_RECV状态）</span></a></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">True wealth is a way of thinking.</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+  
+  
+  
+
+  
+
+  
+
+</body>
+</html>
