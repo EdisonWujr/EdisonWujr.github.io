@@ -89,11 +89,13 @@ LVS的应用Linux虚拟服务器作为一种先进的负载均衡解决方案可
 <meta property="og:description" content="文章首发站点: OpensGalaxy.com一、介绍什么是LVS(Linux Virtual Server)？Linux虚拟服务器是一个高度可扩展的、高可用的服务器建立在真实服务器的集群和负载均衡，在Linux操作系统上运行。服务器集群体系结构对用户是完全透明的，使用户像访问一台服务器一样。
 LVS的应用Linux虚拟服务器作为一种先进的负载均衡解决方案可用于构建高度可扩展的、高可用的网络服务，">
 <meta property="og:image" content="http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/01142525-56dfb6e2f4794ba78b075f527b835994.jpg">
+<meta property="og:image" content="http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/modprobe.jpg">
+<meta property="og:image" content="http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/rpm.jpg">
 <meta property="og:image" content="http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/lvslan.png">
-<meta property="og:image" content="http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/rs1.tiff">
-<meta property="og:image" content="http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/rs2.tiff">
-<meta property="og:image" content="http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/ipvsadm.tiff">
-<meta property="og:updated_time" content="2016-05-09T07:45:28.000Z">
+<meta property="og:image" content="http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/rs1.jpg">
+<meta property="og:image" content="http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/rs2.jpg">
+<meta property="og:image" content="http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/ipvsadm.jpg">
+<meta property="og:updated_time" content="2016-05-09T09:37:02.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="LVS-DR模式安装与配置">
 <meta name="twitter:description" content="文章首发站点: OpensGalaxy.com一、介绍什么是LVS(Linux Virtual Server)？Linux虚拟服务器是一个高度可扩展的、高可用的服务器建立在真实服务器的集群和负载均衡，在Linux操作系统上运行。服务器集群体系结构对用户是完全透明的，使用户像访问一台服务器一样。
@@ -319,10 +321,17 @@ LVS的应用Linux虚拟服务器作为一种先进的负载均衡解决方案可
 <h2 id="LVS负载均衡模式"><a href="#LVS负载均衡模式" class="headerlink" title="LVS负载均衡模式"></a>LVS负载均衡模式</h2><p>VS/NAT、VS/TUN和VS/DR<br>本文将介绍LVS-DR（Direct Routing）模式的安装与配置，VS/DR模式的拓扑图:<br><img src="http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/01142525-56dfb6e2f4794ba78b075f527b835994.jpg" alt="image"></p>
 <p>该图是官方提供的VS/DR体系结构图，在VS/DR模式下，Load Balancer和所有的Real Server在物理上有一个网卡通过不分断的局域网相连，调度器和真实服务器必须绑定同一VIP，该VIP在调度器上对外可见，而真实服务器上只需将VIP配置在Non-ARP网络设备上，它对外不可见，只是用于欺骗真实服务器用于处理目标地址为VIP的网络请求。真实服务器将请求处理后，直接返回给用户，不需要在通过调度器返回，所以在VS/DR模式下，真实服务器的网关地址不需要指向调度器。</p>
 <h2 id="二、安装ipvs"><a href="#二、安装ipvs" class="headerlink" title="二、安装ipvs"></a>二、安装ipvs</h2><p>1、检查Load Balancer服务器是否已支持ipvs。</p>
-<figure class="highlight plain"><figcaption><span>~]# modprobe -l |grep ipvs```</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">若有类似以下输出，则表示服务器已支持ipvs: </span><br><span class="line"></span><br><span class="line">2、检查是否有必须的依赖包：Kernel-devel、gcc、openssl、openssl-devel、popt </span><br><span class="line"></span><br><span class="line">![image](http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/modprobe.tiff)</span><br><span class="line"></span><br><span class="line">如果没有包，可以使用yum install 安装。</span><br><span class="line"></span><br><span class="line">![image](http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/rpm.tiff)</span><br><span class="line"></span><br><span class="line">3、在Load Balancer服务器上安装ipvsadm</span><br><span class="line">直接使用YUM源安装</span><br><span class="line"></span><br><span class="line">```[root@YumServer ~]# yum install ipvsadm</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@YumServer ~]# modprobe -l |grep ipvs</span><br></pre></td></tr></table></figure>
+<p>若有类似以下输出，则表示服务器已支持ipvs: </p>
+<p>2、检查是否有必须的依赖包：Kernel-devel、gcc、openssl、openssl-devel、popt </p>
+<p><img src="http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/modprobe.jpg" alt="image"></p>
+<p>如果没有包，可以使用yum install 安装。</p>
+<p><img src="http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/rpm.jpg" alt="image"></p>
+<p>3、在Load Balancer服务器上安装ipvsadm<br>直接使用YUM源安装</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@YumServer ~]# yum install ipvsadm</span><br></pre></td></tr></table></figure>
 <p>或是到官网下载:<a href="http://www.linuxvirtualserver.org" target="_blank" rel="external">http://www.linuxvirtualserver.org</a> 注意要根据自己的内核版本选择对应的ipvsadm版本。本文使用YUM安装。</p>
 <p>查看ipvsadm版本</p>
-<figure class="highlight plain"><figcaption><span>~]# ipvsadm -v</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ipvsadm v1.26 2008/5/15 (compiled with popt and IPVS v1.2.1)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@YumServer ~]# ipvsadm -v</span><br><span class="line">ipvsadm v1.26 2008/5/15 (compiled with popt and IPVS v1.2.1)</span><br></pre></td></tr></table></figure>
 <h2 id="三、配置"><a href="#三、配置" class="headerlink" title="三、配置"></a>三、配置</h2><hr>
 <p>环境: </p>
 <ul>
@@ -387,11 +396,11 @@ LVS的应用Linux虚拟服务器作为一种先进的负载均衡解决方案可
 <ul>
 <li>两台RealServer服务器都安装http服务用于验证负载均衡设置是否生效（分别放置可以显示RealServer1和RealServer2的html页面，用于验证负载均衡效果）如下图: </li>
 </ul>
-<p><img src="http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/rs1.tiff" alt="image"></p>
+<p><img src="http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/rs1.jpg" alt="image"></p>
 <p>刷新后出现: </p>
-<p><img src="http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/rs2.tiff" alt="image"></p>
+<p><img src="http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/rs2.jpg" alt="image"></p>
 <p>查看请求分发情况</p>
-<p><img src="http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/ipvsadm.tiff" alt="image"></p>
+<p><img src="http://opensgalaxy.oss-cn-beijing.aliyuncs.com/images/lvs/ipvsadm.jpg" alt="image"></p>
 <h2 id="附录（关于出现SYN-RECV状态）"><a href="#附录（关于出现SYN-RECV状态）" class="headerlink" title="附录（关于出现SYN_RECV状态）"></a>附录（关于出现SYN_RECV状态）</h2><p>刚搭建完成lvs时，发现刷新好半天，只请求到了其中一台服务器，而我明明使用的是轮询，通过查看连接情况发现：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">[root@YumServer network-scripts]# ipvsadm -lnc </span><br><span class="line">IPVS connection entries</span><br><span class="line">pro expire state       source             virtual            destination</span><br><span class="line">TCP 01:48  FIN_WAIT    10.10.10.22:3065   10.10.10.213:80    10.10.10.217:80</span><br><span class="line">TCP 01:51  FIN_WAIT    10.10.10.22:3095   10.10.10.213:80    10.10.10.217:80</span><br><span class="line">TCP 01:50  FIN_WAIT    10.10.10.22:3082   10.10.10.213:80    10.10.10.217:80</span><br><span class="line">TCP 00:49  SYN_RECV    10.10.10.22:3068   10.10.10.213:80    10.10.10.216:80</span><br><span class="line">TCP 01:55  FIN_WAIT    10.10.10.22:3129   10.10.10.213:80    10.10.10.217:80</span><br><span class="line">TCP 01:56  FIN_WAIT    10.10.10.22:3149   10.10.10.213:80    10.10.10.217:80</span><br><span class="line">TCP 01:45  FIN_WAIT    10.10.10.22:3048   10.10.10.213:80    10.10.10.217:80</span><br><span class="line">TCP 00:58  SYN_RECV    10.10.10.22:3164   10.10.10.213:80    10.10.10.216:80</span><br><span class="line">TCP 01:47  FIN_WAIT    10.10.10.22:3057   10.10.10.213:80    10.10.10.217:80</span><br><span class="line">TCP 00:56  SYN_RECV    10.10.10.22:3137   10.10.10.213:80    10.10.10.216:80</span><br><span class="line">TCP 00:57  SYN_RECV    10.10.10.22:3152   10.10.10.213:80    10.10.10.216:80</span><br><span class="line">TCP 01:57  FIN_WAIT    10.10.10.22:3153   10.10.10.213:80    10.10.10.217:80</span><br><span class="line">TCP 00:53  SYN_RECV    10.10.10.22:3105   10.10.10.213:80    10.10.10.216:80</span><br><span class="line">TCP 01:54  FIN_WAIT    10.10.10.22:3114   10.10.10.213:80    10.10.10.217:80</span><br><span class="line">TCP 01:56  FIN_WAIT    10.10.10.22:3140   10.10.10.213:80    10.10.10.217:80</span><br><span class="line">TCP 00:51  SYN_RECV    10.10.10.22:3079   10.10.10.213:80    10.10.10.216:80</span><br><span class="line">TCP 01:55  FIN_WAIT    10.10.10.22:3127   10.10.10.213:80    10.10.10.217:80</span><br><span class="line">TCP 00:50  SYN_RECV    10.10.10.22:3074   10.10.10.213:80    10.10.10.216:80</span><br><span class="line">TCP 00:54  SYN_RECV    10.10.10.22:3120   10.10.10.213:80    10.10.10.216:80</span><br></pre></td></tr></table></figure>
 <p>会出现大量的SYN_RECV状态，SYN-RECV 代表LB已经发起SYN请求，realserver 无响应或有异常。<br>请求已经发出，但是realserver无响应？所以查看realserver的apache配置发现，我选择监听的是realserver的本机ip</p>
