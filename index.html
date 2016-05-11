@@ -249,6 +249,179 @@
             
               
                 
+                <a class="post-title-link" href="/2016/05/11/aliyun-rds-restore/" itemprop="url">
+                  恢复阿里云RDS数据库到本地数据库
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-05-11T13:22:01+08:00" content="2016-05-11">
+              2016-05-11
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/aliyun/" itemprop="url" rel="index">
+                    <span itemprop="name">aliyun</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="文章首发站点：OpensGalaxy-com"><a href="#文章首发站点：OpensGalaxy-com" class="headerlink" title="文章首发站点：OpensGalaxy.com"></a>文章首发站点：<a href="http://OpensGalaxy.com" target="_blank" rel="external">OpensGalaxy.com</a></h2><h2 id="本文参照阿里云官方rds恢复文档，做了一些补充，原文地址："><a href="#本文参照阿里云官方rds恢复文档，做了一些补充，原文地址：" class="headerlink" title="本文参照阿里云官方rds恢复文档，做了一些补充，原文地址："></a>本文参照阿里云官方rds恢复文档，做了一些补充，原文地址：</h2><h2 id="https-help-aliyun-com-knowledge-detail-5973700-html-spm-5176-2020520104-0-0-yreJ8Q"><a href="#https-help-aliyun-com-knowledge-detail-5973700-html-spm-5176-2020520104-0-0-yreJ8Q" class="headerlink" title="https://help.aliyun.com/knowledge_detail/5973700.html?spm=5176.2020520104.0.0.yreJ8Q"></a><a href="https://help.aliyun.com/knowledge_detail/5973700.html?spm=5176.2020520104.0.0.yreJ8Q" target="_blank" rel="external">https://help.aliyun.com/knowledge_detail/5973700.html?spm=5176.2020520104.0.0.yreJ8Q</a></h2><h2 id="1-概述与软件说明"><a href="#1-概述与软件说明" class="headerlink" title="1.概述与软件说明"></a>1.概述与软件说明</h2><h3 id="1-1-概述"><a href="#1-1-概述" class="headerlink" title="1.1   概述"></a>1.1   概述</h3><p>RDS MySQL 使用开源软件 percona-Xtrabackup 对 MySQL 数据库进行备份。需要下载该软件，然后使用该软件进行恢复。</p>
+<h3 id="1-2-软件说明"><a href="#1-2-软件说明" class="headerlink" title="1.2   软件说明"></a>1.2   软件说明</h3><h4 id="解压软件"><a href="#解压软件" class="headerlink" title="解压软件"></a>解压软件</h4><p>RDS的备份文件是一个压缩包，需要先解压出来，才能恢复，这里下载解压工具 <a href="http://oss.aliyuncs.com/aliyunecs/rds_backup_extract.sh?spm=5176.775973700.0.0.Tzewwp&amp;file=rds_backup_extract.sh" target="_blank" rel="external">rds_backup_extract</a> (sh文件)，目前只支持64位linux系统。</p>
+<p>软件使用方式 sh rds_backup_extract -f backup.tar.gz/back.xb.gz  -C directory</p>
+<p>-f 参数后面跟要解压的备份集文件</p>
+<p>-C 参数后面跟要解压到的目录，-C 参数是可选的，如果不指定就解压到当前目录，如 sh rds_backup_extract -f backup.tar.gz</p>
+<p>注：需要通过 bash 来执行 rds_backup_extract 脚本文件。</p>
+<h4 id="恢复软件"><a href="#恢复软件" class="headerlink" title="恢复软件"></a>恢复软件</h4><p>恢复软件请下载官方的 Percona-XtraBackup【下载地址：<a href="https://www.percona.com/downloads/XtraBackup/】，官方提供各种平台的安装包，请根据自己的需要下载。RDS" target="_blank" rel="external">https://www.percona.com/downloads/XtraBackup/】，官方提供各种平台的安装包，请根据自己的需要下载。RDS</a> 备份使用的版本是 2.2.9，建议您下载 2.2.9 或更新的版本使用。想要了解工具原理的可以参考官方文档。</p>
+<h4 id="环境准备-xtrabackup-mysql"><a href="#环境准备-xtrabackup-mysql" class="headerlink" title="环境准备[xtrabackup mysql]"></a>环境准备[xtrabackup mysql]</h4><h5 id="安装-Percona-XtraBackup"><a href="#安装-Percona-XtraBackup" class="headerlink" title="安装 Percona-XtraBackup"></a>安装 Percona-XtraBackup</h5><p>我使用的Centos6.7 64位操作系统，下载3个rpm包后进行安装，安装前先安装两个perl依赖包：perl-Time-HiRes perl-DBD-MySQL</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install perl-Time-HiRes perl-DBD-MySQL</span><br></pre></td></tr></table></figure>
+<p>然后安装</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">yum install percona-xtrabackup-2.2.9-5067.el6.x86_64.rpm</span><br><span class="line">yum install percona-xtrabackup-debuginfo-2.2.9-5067.el6.x86_64.rpm</span><br><span class="line">yum install percona-xtrabackup-test-2.2.9-5067.el6.x86_64.rpm</span><br></pre></td></tr></table></figure>
+<h5 id="安装-Mysql5-6"><a href="#安装-Mysql5-6" class="headerlink" title="安装 Mysql5.6"></a>安装 Mysql5.6</h5><p>由于阿里云rds目前最高支持mysql5.6版本，所以在本地安装相应的mysql版本,下载Mysql的yum仓库（根据你的操作系统选择对应仓库列表）</p>
+<p><a href="http://dev.mysql.com/downloads/repo/yum/" target="_blank" rel="external">http://dev.mysql.com/downloads/repo/yum/</a></p>
+<p>我下载的是 <a href="http://dev.mysql.com/get/mysql57-community-release-el6-8.noarch.rpm" target="_blank" rel="external">http://dev.mysql.com/get/mysql57-community-release-el6-8.noarch.rpm</a></p>
+<p>然后安装一下这个仓库列表</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpm -ivh mysql57-community-release-el6-8.noarch.rpm</span><br></pre></td></tr></table></figure>
+<p>搜索一下仓库</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">[root@server18 ~]# yum repolist all |grep mysql</span><br><span class="line">mysql-connectors-community        MySQL Connectors Community     enabled:     21</span><br><span class="line">mysql-connectors-community-source MySQL Connectors Community - S disabled</span><br><span class="line">mysql-tools-community             MySQL Tools Community          enabled:     35</span><br><span class="line">mysql-tools-community-source      MySQL Tools Community - Source disabled</span><br><span class="line">mysql-tools-preview               MySQL Tools Preview            disabled</span><br><span class="line">mysql-tools-preview-source        MySQL Tools Preview - Source   disabled</span><br><span class="line">mysql55-community                 MySQL 5.5 Community Server     disabled</span><br><span class="line">mysql55-community-source          MySQL 5.5 Community Server - S disabled</span><br><span class="line">mysql56-community                 MySQL 5.6 Community Server     enabled:    248</span><br><span class="line">mysql56-community-source          MySQL 5.6 Community Server - S disabled</span><br><span class="line">mysql57-community                 MySQL 5.7 Community Server     disabled</span><br><span class="line">mysql57-community-source          MySQL 5.7 Community Server - S disabled</span><br></pre></td></tr></table></figure>
+<p>禁用mysql5.7</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@server18 ~]# yum-config-manager --disable mysql57-community</span><br></pre></td></tr></table></figure>
+<p>启用mysql5.6</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@server18 ~]# yum-config-manager --enable mysql56-community</span><br></pre></td></tr></table></figure>
+<p>开始安装</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@server18 ~]# yum install mysql-community-server</span><br></pre></td></tr></table></figure>
+<h2 id="2-step-by-step说明"><a href="#2-step-by-step说明" class="headerlink" title="2.step by step说明"></a>2.step by step说明</h2><h3 id="2-1-管理控制台中下载备份文件"><a href="#2-1-管理控制台中下载备份文件" class="headerlink" title="2.1 管理控制台中下载备份文件"></a>2.1 管理控制台中下载备份文件</h3><p>在RDS控制台中的备份与恢复-&gt;备份列表，选择一个备份文件进行下载,如下图</p>
+<p><img src="https://img.alicdn.com/tps/i1/TB1BLxMHFXXXXaCaXXX.ZRpFpXX-558-220.jpg" alt="image"></p>
+<p>下载文件成功后，将备份文件上传至linux系统，上传成功后在Linux系统上检测，如下图：</p>
+<p><img src="https://img.alicdn.com/tps/i2/TB1ueZeHpXXXXbwaXXXC9upYpXX-558-48.jpg" alt="image"></p>
+<h3 id="2-2-解压备份文件"><a href="#2-2-解压备份文件" class="headerlink" title="2.2 解压备份文件"></a>2.2 解压备份文件</h3><p>解压备份文件前，要先下载好解压工具 rds_backup_extract</p>
+<h4 id="1-解压备份文件"><a href="#1-解压备份文件" class="headerlink" title="1.  解压备份文件"></a>1.  解压备份文件</h4><p>执行命令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sh rds_backup_extract -f /home/mysql/backup/hins575175_xtra_20150429091224.tar.gz -C /home/mysql/data</span><br></pre></td></tr></table></figure>
+<p>如下图：</p>
+<p><img src="https://img.alicdn.com/tps/i4/TB1LhsqHpXXXXXEapXX285oYpXX-558-44.jpg" alt="image"></p>
+<p>查询解压后生成的文件,其中蓝色字体的目录文件为备份生成时RDS存在的数据库</p>
+<p><img src="https://img.alicdn.com/tps/i3/TB1OkUsHpXXXXbtaXXXelVhFpXX-558-146.jpg" alt="image"></p>
+<h3 id="2-3-恢复数据文件"><a href="#2-3-恢复数据文件" class="headerlink" title="2.3 恢复数据文件"></a>2.3 恢复数据文件</h3><p>解压备份文件前，要先安装好 [Percona-XtraBackup]</p>
+<p>( <a href="http://www.percona.com/downloads/XtraBackup/" target="_blank" rel="external">http://www.percona.com/downloads/XtraBackup/</a>) 工具。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">innobackupex --defaults-file=/home/mysql/data/backup-my.cnf --apply-log /home/mysql/data</span><br></pre></td></tr></table></figure>
+<p><img src="https://img.alicdn.com/tps/i1/TB1K2xnHFXXXXXrapXXus5mYpXX-558-28.jpg" alt="image"></p>
+<p>这一步最后如果看到类似如下输出，显示 completed OK，表示执行成功：</p>
+<p><img src="https://img.alicdn.com/tps/i1/TB1P0ZuHpXXXXc.aXXX96zKUpXX-509-68.jpg" alt="image"></p>
+<h3 id="2-4-配置文件修改"><a href="#2-4-配置文件修改" class="headerlink" title="2.4 配置文件修改"></a>2.4 配置文件修改</h3><p>由于存在的版本问题，请将解压文件backup-my.cnf中的innodb_fast_checksum，innodb_page_size ，innodb_log_block_size 注释掉，如下图：</p>
+<p><img src="https://img.alicdn.com/tps/i4/TB1Vp8FHFXXXXcsapXX3NNrFpXX-558-199.jpg" alt="image"></p>
+<h3 id="2-5-修改文件属主"><a href="#2-5-修改文件属主" class="headerlink" title="2.5 修改文件属主"></a>2.5 修改文件属主</h3><p>执行chown -R mysql:mysql /home/mysql/data ，并检查文件所属为mysql用户</p>
+<p> <img src="https://img.alicdn.com/tps/i2/TB1Kjg6HpXXXXaUapXXmLllFpXX-558-166.jpg" alt="image"></p>
+<h3 id="2-6-启动mysqld进程并且登录验证"><a href="#2-6-启动mysqld进程并且登录验证" class="headerlink" title="2.6 启动mysqld进程并且登录验证"></a>2.6 启动mysqld进程并且登录验证</h3><p>启动mysqld进程，并验证启动成功</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqld_safe --defaults-file=/home/mysql/data/backup-my.cnf --user=mysql --datadir=/home/mysql/data &amp;</span><br></pre></td></tr></table></figure>
+<p><img src="https://img.alicdn.com/tps/i1/TB1UJ3dHpXXXXacapXXbjRcFpXX-558-117.jpg" alt="image"></p>
+<p>客户端登录mysql验证</p>
+<p><img src="https://img.alicdn.com/tps/i3/TB1pe8XHFXXXXaSapXX3zplFpXX-558-200.jpg" alt="image"></p>
+<h2 id="注意"><a href="#注意" class="headerlink" title="注意:"></a>注意:</h2><ol>
+<li><p>恢复完成后,mysql.user中是不包含rds中的用户的;需要新建;</p>
+</li>
+<li><p>新建用户前请执行如下sql:</p>
+</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; delete from mysql.db where user&lt;&gt;&apos;root&apos; and char_length(user)&gt;0;</span><br><span class="line">mysql&gt; delete from mysql.tables_priv where user&lt;&gt;&apos;root&apos; and char_length(user)&gt;0;</span><br><span class="line">mysql&gt; flush privileges;</span><br></pre></td></tr></table></figure>
+<p> 即可.</p>
+<ol>
+<li>其他问题</li>
+</ol>
+<p>因为软件限制，目前恢复只支持Linux下进行。Linux下恢复的数据文件，无论Windows、Linux下，MySQL都可以正常使用.</p>
+
+          
+        
+      
+    </div>
+    
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/05/09/LVS-DR-install/" itemprop="url">
                   LVS-DR模式安装与配置
                 </a>
@@ -715,7 +888,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">3</span>
+              <span class="site-state-item-count">4</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -723,7 +896,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-count">3</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -732,7 +905,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-count">3</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
