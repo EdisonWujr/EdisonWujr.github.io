@@ -249,6 +249,149 @@
             
               
                 
+                <a class="post-title-link" href="/2016/06/27/hdfs-on-centos6-5/" itemprop="url">
+                  hdfs-on-centos6.5
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-06-27T15:02:17+08:00" content="2016-06-27">
+              2016-06-27
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/hadoop/" itemprop="url" rel="index">
+                    <span itemprop="name">hadoop</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="Hadoop-2-7-2-HDFS-on-Centos6-5"><a href="#Hadoop-2-7-2-HDFS-on-Centos6-5" class="headerlink" title="Hadoop 2.7.2 HDFS on Centos6.5"></a>Hadoop 2.7.2 HDFS on Centos6.5</h1><h2 id="文章首发站点：OpensGalaxy-com"><a href="#文章首发站点：OpensGalaxy-com" class="headerlink" title="文章首发站点：OpensGalaxy.com"></a>文章首发站点：<a href="http://OpensGalaxy.com" target="_blank" rel="external">OpensGalaxy.com</a></h2><h2 id="一、环境准备"><a href="#一、环境准备" class="headerlink" title="一、环境准备"></a>一、环境准备</h2><h3 id="1、下载Hadoop-2-7-2-版本"><a href="#1、下载Hadoop-2-7-2-版本" class="headerlink" title="1、下载Hadoop 2.7.2 版本"></a>1、下载Hadoop 2.7.2 版本</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget http://mirror.bit.edu.cn/apache/hadoop/common/hadoop-2.7.2/hadoop-2.7.2.tar.gz</span><br></pre></td></tr></table></figure>
+<h3 id="2、安装JAVA-7"><a href="#2、安装JAVA-7" class="headerlink" title="2、安装JAVA 7"></a>2、安装JAVA 7</h3><p>Hadoop Version 2.7 需要java7</p>
+<p>Oracle官方下载链接页面 <a href="http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html" target="_blank" rel="external">http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html</a></p>
+<p>jdk-7u79-linux-x64.rpm</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@iZ25b872mg2Z ~]# java -version</span><br><span class="line">java version &quot;1.7.0_79&quot;</span><br><span class="line">Java(TM) SE Runtime Environment (build 1.7.0_79-b15)</span><br><span class="line">Java HotSpot(TM) 64-Bit Server VM (build 24.79-b02, mixed mode)</span><br></pre></td></tr></table></figure>
+<h3 id="3、集群服务器信息"><a href="#3、集群服务器信息" class="headerlink" title="3、集群服务器信息"></a>3、集群服务器信息</h3><p>namenode01    192.168.0.1</p>
+<p>datanode01    192.168.0.2</p>
+<p>datanode02    192.168.0.3</p>
+<h3 id="4、编辑hosts文件"><a href="#4、编辑hosts文件" class="headerlink" title="4、编辑hosts文件"></a>4、编辑hosts文件</h3><p>192.168.0.1    namenode01</p>
+<p>192.168.0.2    datanode01</p>
+<blockquote>
+<p>192.168.0.3    datanode02</p>
+</blockquote>
+<h3 id="5、建立hadoop用户"><a href="#5、建立hadoop用户" class="headerlink" title="5、建立hadoop用户"></a>5、建立hadoop用户</h3><p>分别在三台服务器上建立hadoop用户</p>
+<h3 id="SSH密钥认证"><a href="#SSH密钥认证" class="headerlink" title="SSH密钥认证"></a>SSH密钥认证</h3><h3 id="6、建立namenode01到namenode01、datanode01、02的ssh密钥认证登录"><a href="#6、建立namenode01到namenode01、datanode01、02的ssh密钥认证登录" class="headerlink" title="6、建立namenode01到namenode01、datanode01、02的ssh密钥认证登录"></a>6、建立namenode01到namenode01、datanode01、02的ssh密钥认证登录</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ssh-copy-id -i .ssh/id_rsa.pub hadoop@datanode01</span><br><span class="line">ssh-copy-id -i .ssh/id_rsa.pub hadoop@datanode02</span><br><span class="line">ssh-copy-id -i .ssh/id_rsa.pub hadoop@namenode01</span><br></pre></td></tr></table></figure>
+<h2 id="二、配置HDFS"><a href="#二、配置HDFS" class="headerlink" title="二、配置HDFS"></a>二、配置HDFS</h2><p>namenode01节点操作</p>
+<h3 id="1、创建相关存储目录"><a href="#1、创建相关存储目录" class="headerlink" title="1、创建相关存储目录"></a>1、创建相关存储目录</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tar -zxvf hadoop-2.7.2.tar.gz -C /opt/</span><br><span class="line">mkdir -p /opt/hadoop-2.7.2/data</span><br><span class="line">mkdir -p /opt/hadoop-2.7.2/name</span><br><span class="line">mkdir -p /opt/hadoop-2.7.2/tmp</span><br><span class="line">chown -R hadoop.hadoop /opt/hadoop-2.7.2</span><br></pre></td></tr></table></figure>
+<h3 id="2、修改-etc-hadoop-下的四个配置文件【本文只启动HDFS文件系统】"><a href="#2、修改-etc-hadoop-下的四个配置文件【本文只启动HDFS文件系统】" class="headerlink" title="2、修改 etc/hadoop/下的四个配置文件【本文只启动HDFS文件系统】"></a>2、修改 etc/hadoop/下的四个配置文件【本文只启动HDFS文件系统】</h3><p>slaves、core-site.xml、hdfs-site.xml、hadoop-env.sh</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">vim hadoop-env.sh</span><br><span class="line">#增加或修改 JAVA_HOME环境变量</span><br><span class="line">export JAVA_HOME=/usr/java/jdk1.7.0_79</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">vim core-site.xml</span><br><span class="line"></span><br><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;?xml-stylesheet type=&quot;text/xsl&quot; href=&quot;configuration.xsl&quot;?&gt;</span><br><span class="line">&lt;configuration&gt;</span><br><span class="line"> &lt;property&gt;</span><br><span class="line">  &lt;name&gt;fs.defaultFS&lt;/name&gt;</span><br><span class="line">  &lt;value&gt;hdfs://namenode01:9000&lt;/value&gt;</span><br><span class="line"> &lt;/property&gt;</span><br><span class="line"> &lt;property&gt;</span><br><span class="line">  &lt;name&gt;hadoop.tmp.dir&lt;/name&gt;</span><br><span class="line">  &lt;value&gt;file:/opt/hadoop-2.7.2/tmp&lt;/value&gt;</span><br><span class="line"> &lt;/property&gt;</span><br><span class="line">&lt;/configuration&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">vim hdfs-site.xml</span><br><span class="line"></span><br><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;?xml-stylesheet type=&quot;text/xsl&quot; href=&quot;configuration.xsl&quot;?&gt;</span><br><span class="line">&lt;configuration&gt;</span><br><span class="line"> &lt;property&gt;</span><br><span class="line">   &lt;name&gt;dfs.namenode.secondary.http-address&lt;/name&gt;</span><br><span class="line">   &lt;value&gt;namenode01:50090&lt;/value&gt;</span><br><span class="line"> &lt;/property&gt;</span><br><span class="line"> &lt;property&gt;</span><br><span class="line">   &lt;name&gt;dfs.replication&lt;/name&gt;</span><br><span class="line">   &lt;value&gt;2&lt;/value&gt;</span><br><span class="line"> &lt;/property&gt;</span><br><span class="line">   &lt;property&gt;</span><br><span class="line">   &lt;name&gt;dfs.namenode.name.dir&lt;/name&gt;</span><br><span class="line">   &lt;value&gt;file:/opt/hadoop-2.7.2/name&lt;/value&gt;</span><br><span class="line"> &lt;/property&gt;</span><br><span class="line"> &lt;property&gt;</span><br><span class="line">   &lt;name&gt;dfs.datanode.data.dir&lt;/name&gt;</span><br><span class="line">   &lt;value&gt;file:/opt/hadoop-2.7.2/data&lt;/value&gt;</span><br><span class="line"> &lt;/property&gt;</span><br><span class="line">&lt;/configuration&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">vim slaves</span><br><span class="line">datanode01</span><br><span class="line">datanode02</span><br></pre></td></tr></table></figure>
+<p>配置完成</p>
+<h3 id="3、将-opt-hadoop-2-7-2-整个目录复制到datanote01-datanode02-的-opt-目录下"><a href="#3、将-opt-hadoop-2-7-2-整个目录复制到datanote01-datanode02-的-opt-目录下" class="headerlink" title="3、将/opt/hadoop-2.7.2 整个目录复制到datanote01 datanode02 的/opt/ 目录下"></a>3、将/opt/hadoop-2.7.2 整个目录复制到datanote01 datanode02 的/opt/ 目录下</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">scp -r /opt/hadoop-2.7.2 hadoop@datanode01:/opt/</span><br><span class="line">scp -r /opt/hadoop-2.7.2 hadoop@datanode02:/opt/</span><br></pre></td></tr></table></figure>
+<h3 id="4、在hadoop用户下操作"><a href="#4、在hadoop用户下操作" class="headerlink" title="4、在hadoop用户下操作"></a>4、在hadoop用户下操作</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">vim /home/hadoop/.bash_profile</span><br><span class="line">#增加两个环境变量</span><br><span class="line"></span><br><span class="line">export  HADOOP_HOME=/opt/hadoop-2.7.2</span><br><span class="line">export  PATH=$PATH:$HADOOP_HOME/bin</span><br><span class="line"></span><br><span class="line">source /etc/profile</span><br></pre></td></tr></table></figure>
+<h3 id="5、首次启动需要先在-Master-节点执行-NameNode-的格式化："><a href="#5、首次启动需要先在-Master-节点执行-NameNode-的格式化：" class="headerlink" title="5、首次启动需要先在 Master 节点执行 NameNode 的格式化："></a>5、首次启动需要先在 Master 节点执行 NameNode 的格式化：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hdfs namenode -format</span><br></pre></td></tr></table></figure>
+<h3 id="6、启动-hadoop-启动需要在-Master-节点上进行："><a href="#6、启动-hadoop-启动需要在-Master-节点上进行：" class="headerlink" title="6、启动 hadoop 启动需要在 Master 节点上进行："></a>6、启动 hadoop 启动需要在 Master 节点上进行：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">start-dfs.sh</span><br></pre></td></tr></table></figure>
+<p>访问HDFS web界面 <a href="http://namenode01:50070/" target="_blank" rel="external">http://namenode01:50070/</a></p>
+<h3 id="7、测试一下"><a href="#7、测试一下" class="headerlink" title="7、测试一下"></a>7、测试一下</h3><p>创建文件夹</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hdfs dfs -mkdir /test</span><br></pre></td></tr></table></figure>
+<p>上传文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hdfs dfs -put /root/hadoop-2.7.2.tar.gz /test/</span><br></pre></td></tr></table></figure>
+<p>到这里，一套最简单配置的HDFS分布式集群系统就搭建完毕了。因为本文章只是搭建HDFS分布式文件系统，所以其它都没有配置，算是最小化的HDFS配置吧。</p>
+
+          
+        
+      
+    </div>
+    
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/05/11/aliyun-rds-restore/" itemprop="url">
                   恢复阿里云RDS数据库到本地数据库
                 </a>
@@ -888,7 +1031,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">4</span>
+              <span class="site-state-item-count">5</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -896,7 +1039,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-count">4</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -905,7 +1048,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-count">7</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
