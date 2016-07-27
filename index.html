@@ -249,6 +249,119 @@
             
               
                 
+                <a class="post-title-link" href="/2016/07/27/python-call-zabbixapi/" itemprop="url">
+                  Python Call Zabbix API to Create Hosts
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-07-27T09:06:33+08:00" content="2016-07-27">
+              2016-07-27
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="文章首发站点：OpensGalaxy-com"><a href="#文章首发站点：OpensGalaxy-com" class="headerlink" title="文章首发站点：OpensGalaxy.com"></a>文章首发站点：<a href="http://www.opensgalaxy.com" target="_blank" rel="external">OpensGalaxy.com</a></h2><h3 id="这是一个根据zabbix-api中host-create方法来批量创建host的python程序，比较基础，大家可以举一反三，zabbix-api都可以使用这样的方法来调用。"><a href="#这是一个根据zabbix-api中host-create方法来批量创建host的python程序，比较基础，大家可以举一反三，zabbix-api都可以使用这样的方法来调用。" class="headerlink" title="这是一个根据zabbix api中host.create方法来批量创建host的python程序，比较基础，大家可以举一反三，zabbix api都可以使用这样的方法来调用。"></a>这是一个根据zabbix api中host.create方法来批量创建host的python程序，比较基础，大家可以举一反三，zabbix api都可以使用这样的方法来调用。</h3><h3 id="参考官方文档地址：https-www-zabbix-com-documentation-3-0-manual-api"><a href="#参考官方文档地址：https-www-zabbix-com-documentation-3-0-manual-api" class="headerlink" title="参考官方文档地址：https://www.zabbix.com/documentation/3.0/manual/api"></a>参考官方文档地址：<a href="https://www.zabbix.com/documentation/3.0/manual/api" target="_blank" rel="external">https://www.zabbix.com/documentation/3.0/manual/api</a></h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">#!/usr/bin/env python</span><br><span class="line"># -*- coding:utf-8 -*-</span><br><span class="line"></span><br><span class="line">import json</span><br><span class="line">import urllib2</span><br><span class="line"># Zabbix Api url</span><br><span class="line">url = &quot;http://test.zabbix.com/zabbix/api_jsonrpc.php&quot;</span><br><span class="line"># Zabbix Api 要求的 header格式</span><br><span class="line">header = &#123;&quot;Content-Type&quot;:&quot;application/json&quot;&#125;</span><br><span class="line"># 定义一个登录验证函数 auth, 这个函数会返回一个authid 方便后续程序调用。</span><br><span class="line"># 官方文档中样例 &quot;auth&quot;: &quot;038e1d7b1735c6a5436ee9eae095879e&quot; 这个函数就会返回这个ID。</span><br><span class="line">def auth():</span><br><span class="line">   data = json.dumps(</span><br><span class="line">           &#123;</span><br><span class="line">              &quot;jsonrpc&quot;: &quot;2.0&quot;,</span><br><span class="line">              &quot;method&quot;: &quot;user.login&quot;,</span><br><span class="line">              &quot;params&quot;: &#123;</span><br><span class="line">                 &quot;user&quot;: &quot;Admin&quot;,</span><br><span class="line">                 &quot;password&quot;: &quot;123456&quot;</span><br><span class="line">              &#125;,</span><br><span class="line">              &quot;id&quot;: 0</span><br><span class="line">           &#125;)</span><br><span class="line">   # create request object</span><br><span class="line">   request = urllib2.Request(url,data)</span><br><span class="line">   for key in header:</span><br><span class="line">      request.add_header(key,header[key])</span><br><span class="line">   # auth and get authid</span><br><span class="line">   try:</span><br><span class="line">         result = urllib2.urlopen(request)</span><br><span class="line">   except URLError as e:</span><br><span class="line">      print &quot;Auth Failed, Please Check Your Name AndPassword:&quot;, e.code</span><br><span class="line">   else:</span><br><span class="line">      response = json.loads(result.read())</span><br><span class="line">      result.close()</span><br><span class="line">      authid = response[&apos;result&apos;]</span><br><span class="line">   return  authid</span><br><span class="line"></span><br><span class="line">def createhost(hosts,proxyid=0):</span><br><span class="line">    # 这个函数定义了两个变量，hosts是字典类型的用于批量添加主机格式是&#123;&quot;备注名称&quot;:&quot;1.1.1.1&quot;,&quot;备注名称&quot;:&quot;2.2.2.2&quot;&#125;</span><br><span class="line">    # proxyid 默认是0 默认又Zabbix Server监控,如果是由Zabbix Proxy监控,这里填写proxyid 即可.(可以通过proxy.get方法过的proxyid)</span><br><span class="line">    &apos;&apos;&apos; This is a create hosts function</span><br><span class="line">    hosts &#123;&quot;test01&quot;:&quot;1.1.1.1&quot;,&quot;test02&quot;:&quot;2.2.2.2&quot;&#125;</span><br><span class="line">    proxyid  default=0 is server monitor , proxy monitor please set proxyid</span><br><span class="line">    &apos;&apos;&apos;</span><br><span class="line">    authid = auth()</span><br><span class="line">    hostlist = hosts</span><br><span class="line">    # 这里使用for循环来循环 hostlist 字典中的 &quot;备注名称&quot;和&quot;ip地址&quot;，实现每次循环增加一台主机。</span><br><span class="line">    for name in hostlist:</span><br><span class="line">        zdata = json.dumps(&#123;</span><br><span class="line">            &quot;jsonrpc&quot;: &quot;2.0&quot;,</span><br><span class="line">            &quot;method&quot;: &quot;host.create&quot;,</span><br><span class="line">            &quot;params&quot;: &#123;</span><br><span class="line">                &quot;host&quot;: hostlist[name],</span><br><span class="line">                &quot;interfaces&quot;: [</span><br><span class="line">                    &#123;</span><br><span class="line">                        &quot;type&quot;: 1,</span><br><span class="line">                        &quot;main&quot;: 1,</span><br><span class="line">                        &quot;useip&quot;: 1,</span><br><span class="line">                        &quot;ip&quot;: hostlist[name],</span><br><span class="line">                        &quot;dns&quot;: &quot;&quot;,</span><br><span class="line">                        &quot;port&quot;: &quot;10050&quot;</span><br><span class="line">                    &#125;</span><br><span class="line">                ],</span><br><span class="line">                &quot;proxy_hostid&quot;: proxyid,</span><br><span class="line">                &quot;name&quot;: name,</span><br><span class="line">                &quot;groups&quot;: [</span><br><span class="line">                    &#123;</span><br><span class="line">                        &quot;groupid&quot;: &quot;2&quot;</span><br><span class="line">                    &#125;</span><br><span class="line">                ],</span><br><span class="line">                &quot;templates&quot;: [</span><br><span class="line">                    &#123;</span><br><span class="line">                        &quot;templateid&quot;: &quot;10001&quot;</span><br><span class="line">                    &#125;</span><br><span class="line">                ]</span><br><span class="line">            &#125;,</span><br><span class="line">            &quot;auth&quot;: authid,</span><br><span class="line">            &quot;id&quot;: 1</span><br><span class="line">            &#125;)</span><br><span class="line">        request = urllib2.Request(url,zdata)</span><br><span class="line">        for key in header:</span><br><span class="line">                request.add_header(key,header[key])</span><br><span class="line">        try:</span><br><span class="line">            result = urllib2.urlopen(request)</span><br><span class="line">        except URLError as e:</span><br><span class="line">            print &quot;Auth Failed, Please Check Your Name AndPassword:&quot;,e.code</span><br><span class="line">        else:</span><br><span class="line">            response = json.loads(result.read())</span><br><span class="line">            result.close()</span><br><span class="line">            hostid = response[&apos;result&apos;]</span><br><span class="line">            #print hostid</span><br><span class="line"></span><br><span class="line">        hostids = []</span><br><span class="line">        hostids.append(name)</span><br><span class="line">        hostids.append(hostid)</span><br><span class="line">        print hostids</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">hostsdict = input(&quot;Please input hostsdict:\n &quot;)</span><br><span class="line">createhost(hostsdict)</span><br></pre></td></tr></table></figure>
+<h3 id="执行结果如下："><a href="#执行结果如下：" class="headerlink" title="执行结果如下："></a>执行结果如下：</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">D:\untitled1\.idea&gt;python zabbix_auth.py</span><br><span class="line">Please input hostsdict:</span><br><span class="line">&#123;&quot;z01&quot;:&quot;10.10.10.10&quot;,&quot;z02&quot;:&quot;10.10.10.11&quot;&#125;</span><br><span class="line"></span><br><span class="line">[&apos;z01&apos;, &#123;u&apos;hostids&apos;: [u&apos;10274&apos;]&#125;]</span><br><span class="line">[&apos;z02&apos;, &#123;u&apos;hostids&apos;: [u&apos;10275&apos;]&#125;]</span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+    
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/07/26/zabbix-proxy-install/" itemprop="url">
                   Centos 7 源码安装zabbix proxy 3.0
                 </a>
@@ -1292,7 +1405,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">7</span>
+              <span class="site-state-item-count">8</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
